@@ -1,0 +1,8 @@
+[web_servers]
+adm-test.web1 ansible_ssh_host=ip_address
+
+[wp_servers]
+adm-test.web1 ansible_ssh_host=ip_address
+
+[db_servers]
+adm-test.db1 ansible_ssh_host=ip_address

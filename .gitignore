@@ -1,0 +1,5 @@
+ansible/logs
+**/.terraform
+*.tfstate
+*.tfstate.backup
+*.hcl

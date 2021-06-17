@@ -1,0 +1,13 @@
+remi_repo_url: https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+
+php_packages:
+  - php
+  - php-cli
+  - php-gd
+  - php-common
+  - php-mbstring
+  - php-xmlrpc
+  - php-xml
+  - php-mysql
+
+wp_db_host: "ip_address"

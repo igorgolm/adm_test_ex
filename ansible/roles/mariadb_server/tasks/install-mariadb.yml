@@ -1,0 +1,71 @@
+---
+- name: Install MariaDB server
+  yum: 
+    name: 
+      - mariadb-server
+      - MySQL-python
+    state: present
+  tags:
+    - install_mariadb
+
+- name: Start MariaDB server
+  service:
+    name: mariadb
+    state: started
+    enabled: true
+  tags:
+    - install_mariadb
+
+- name: Set MariaDB root password
+  mysql_user:
+    login_user: 'root'
+    login_password: ''
+    name: 'root'
+    password: '{{ mariadb_root_pw }}'
+    state: present
+  no_log: True
+  tags:
+    - install_mariadb
+    - change_root_pw
+
+- name: Deletes anonymous MariaDB server user for localhost
+  mysql_user: 
+    user: "" 
+    state: "absent" 
+    login_password: '{{ mariadb_root_pw }}'
+    login_user: root
+  no_log: True
+  tags:
+    - install_mariadb
+
+- name: Removes the MariaDB test database
+  mysql_db: 
+    db: test
+    state: absent 
+    login_password: '{{ mariadb_root_pw }}' 
+    login_user: root
+  no_log: True
+  tags:
+    - install_mariadb
+
+- name: Create a new database for WordPress
+  mysql_db:
+    login_user: root
+    login_password: '{{ mariadb_root_pw }}'
+    name: '{{ wp_db_name }}'
+    state: present
+  no_log: True
+  tags:
+    - install_mariadb
+
+- name: Configure new MariaDB user
+  mysql_user:
+    login_user: root
+    login_password: '{{ mariadb_root_pw }}'
+    name: '{{ wp_db_user }}'
+    password: '{{ wp_db_pw }}'
+    priv: '{{ wp_db_name }}.*:ALL'
+    host: "192.168.130.%"
+  no_log: True
+  tags:
+    - install_mariadb    

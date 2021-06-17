@@ -1,0 +1,65 @@
+---
+- name: Download and Extract WorPress
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: /var/www/
+    remote_src: yes
+  tags:
+    - install_wp
+
+- name: Update default Apache conf
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    state: present
+    regexp: '(.)+DocumentRoot /var/www/html'
+    line: 'DocumentRoot /var/www/wordpress'
+  notify: restart apache
+  tags:
+    - install_wp
+
+- name: Check if WP sample conf file exists
+  stat: 
+    path: /var/www/wordpress/wp-config-sample.php
+  register: wp_sample_conf
+  tags:
+    - install_wp
+
+- name: Copy sample config file
+  command: mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
+  when: wp_sample_conf.stat.exists == True
+  tags:
+    - install_wp
+
+- name: Update Wordpress config file
+  lineinfile:
+    path: /var/www/wordpress/wp-config.php
+    regexp: "{{item.regexp}}"
+    line: "{{item.line}}"
+  no_log: True
+  with_items:
+     - {'regexp': "define\\( 'DB_NAME', '(.)+' \\);", 'line': "define( 'DB_NAME', '{{ wp_db_name }}' );"}
+     - {'regexp': "define\\( 'DB_USER', '(.)+' \\);", 'line': "define( 'DB_USER', '{{ wp_db_user }}' );"}
+     - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{ wp_db_pw }}' );"}
+     - {'regexp': "define\\( 'DB_HOST', '(.)+' \\);", 'line': "define( 'DB_HOST', '{{ wp_db_host }}' );"}
+  tags:
+    - install_wp
+
+- name: Update ownership to Apache user
+  file:
+    path: /var/www/wordpress/
+    state: directory
+    recurse: yes
+    owner: apache
+    group: apache
+  tags:
+    - install_wp
+
+- name: Set the correct permissions on Wordpress directories
+  command: find /var/www/wordpress/ -type d -exec chmod 755 {} \;
+  tags:
+    - install_wp
+
+- name: Set the correct permissions for Wordpress files
+  command: find /var/www/wordpress/ -type f -exec chmod 644 {} \;
+  tags:
+    - install_wp

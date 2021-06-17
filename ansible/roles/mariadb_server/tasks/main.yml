@@ -1,0 +1,6 @@
+---
+- include: install-mariadb.yml
+  when: "'db_servers' in group_names and ansible_distribution == 'CentOS'"
+  tags:
+    - install_mariadb
+    - update_mariadb_root_pw
