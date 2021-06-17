@@ -1,5 +1,5 @@
 ---
-- name: Download and Extract WorPress
+- name: Download and Extract Wordpress
   unarchive:
     src: https://wordpress.org/latest.tar.gz
     dest: /var/www/
